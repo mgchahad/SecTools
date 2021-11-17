@@ -1,10 +1,9 @@
 #!/bin/bash
-# Created By Marcio Gustavo Chahad - Version 1.0 - 09/11/2021
+# Created By Marcio Gustavo Chahad - Version 1.1 - 09/11/2021
 
 # Variables
 IAM_ID_FILE=iam_access_keys.txt
 CLOUDTRAIL_JSON_FILE=cloudtrail_iam_events.json
-FILTERED_FILE_REPORT=filtered_report.txt
 
 # Setting AWS Profile
 echo -e "Please, set the AWS profile: "
@@ -28,9 +27,5 @@ fi
 for ACCESS_KEY in $(cat iam_access_keys.txt); do \
     aws cloudtrail lookup-events --max-results 10 --lookup-attributes AttributeKey=AccessKeyId,AttributeValue="$ACCESS_KEY" | jq >> cloudtrail_iam_events.json; done
 
-if [ -f "$FILTERED_FILE_REPORT" ] ; then
-    rm "$FILTERED_FILE_REPORT"
-fi
-
 # Applying filter on report
-cat cloudtrail_iam_events.json| grep "CloudTrailEvent" | cut -d "{" -f3 | cut -d "\\" -f26,28,22,24,30,32,42,44,46,48 | sed -e 's/\"/ /g' | sed -e 's/\\/ /g' >> filtered_report.txt
+cat cloudtrail_iam_events.json| grep "CloudTrailEvent" | cut -d "{" -f3 | cut -d "\\" -f26,28,22,24,30,32,42,44,46,48 | sed -e 's/\"/ /g' | sed -e 's/\\/ /g' >> filtered_report_"$PROFILE"_$(date +%Y-%m-%d-%H:%M:%S).txt
